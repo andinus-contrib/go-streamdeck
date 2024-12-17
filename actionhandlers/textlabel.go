@@ -1,8 +1,8 @@
 package actionhandlers
 
 import (
-	streamdeck "github.com/magicmonkey/go-streamdeck"
-	"github.com/magicmonkey/go-streamdeck/buttons"
+	streamdeck "github.com/andinus-contrib/go-streamdeck"
+	"github.com/andinus-contrib/go-streamdeck/buttons"
 )
 
 type TextLabelChangeAction struct {

@@ -6,7 +6,7 @@ import (
 	"image/draw"
 	"os"
 
-	streamdeck "github.com/magicmonkey/go-streamdeck"
+	streamdeck "github.com/andinus-contrib/go-streamdeck"
 )
 
 // ImageFileButton represents a button with an image on it, where the image is loaded

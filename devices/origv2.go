@@ -3,7 +3,7 @@ package devices
 import (
 	"image"
 
-	streamdeck "github.com/magicmonkey/go-streamdeck"
+	streamdeck "github.com/andinus-contrib/go-streamdeck"
 )
 
 var (

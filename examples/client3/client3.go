@@ -3,10 +3,10 @@ package main
 import (
 	"image/color"
 	"time"
-	streamdeck "github.com/magicmonkey/go-streamdeck"
-	"github.com/magicmonkey/go-streamdeck/buttons"
-	"github.com/magicmonkey/go-streamdeck/decorators"
-	_ "github.com/magicmonkey/go-streamdeck/devices"
+	streamdeck "github.com/andinus-contrib/go-streamdeck"
+	"github.com/andinus-contrib/go-streamdeck/buttons"
+	"github.com/andinus-contrib/go-streamdeck/decorators"
+	_ "github.com/andinus-contrib/go-streamdeck/devices"
 )
 
 func main() {
