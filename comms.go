@@ -158,6 +158,11 @@ func (d *Device) GetName() string {
 	return d.deviceType.name
 }
 
+// GetProductID returns the product ID of the type of Streamdeck
+func (d *Device) GetProductID() uint16 {
+	return d.deviceType.usbProductID
+}
+
 // Close the device
 func (d *Device) Close() {
 	d.fd.Close()
