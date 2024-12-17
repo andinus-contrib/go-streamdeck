@@ -47,6 +47,20 @@ func New() (*StreamDeck, error) {
 	return sd, nil
 }
 
+// NewWithID will return a new instance of a `StreamDeck`.  It will return an error if there is no StreamDeck plugged in with the given ID.
+func NewWithID(productID uint16) (*StreamDeck, error) {
+	sd := &StreamDeck{}
+	d, err := OpenWithID(productID)
+	if err != nil {
+		return nil, err
+	}
+	sd.dev = d
+	sd.buttons = make(map[int]Button)
+	sd.decorators = make(map[int]ButtonDecorator)
+	sd.dev.ButtonPress(sd.pressHandler)
+	return sd, nil
+}
+
 // GetName returns the name of the type of Streamdeck
 func (sd *StreamDeck) GetName() string {
 	return sd.dev.deviceType.name

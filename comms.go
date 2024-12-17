@@ -78,6 +78,51 @@ func OpenWithoutReset() (*Device, error) {
 	return rawOpen(false)
 }
 
+// Open a Streamdeck device with a specific ProductID
+func OpenWithID(productID uint16) (*Device, error) {
+	return rawOpenWithID(true, productID)
+}
+
+// Opens a new Streamdeck device, and returns a handle
+func rawOpenWithID(reset bool, productID uint16) (*Device, error) {
+	devices := hid.Enumerate(vendorID, 0)
+	if len(devices) == 0 {
+		return nil, errors.New("No elgato devices found")
+	}
+
+	retval := &Device{}
+	deviceConnected := false
+	for _, device := range devices {
+		if device.ProductID != productID {
+			continue
+		}
+
+		for _, devType := range deviceTypes {
+			if device.ProductID == devType.usbProductID {
+				retval.deviceType = devType
+				dev, err := device.Open()
+				if err != nil {
+					return nil, err
+				}
+				retval.fd = dev
+				if reset {
+					retval.ResetComms()
+				}
+				go retval.buttonPressListener()
+				return retval, nil
+			}
+		}
+
+		deviceConnected = true
+		break
+	}
+	if !deviceConnected {
+		return nil, errors.New("No device connected with given product ID.")
+	}
+
+	return nil, errors.New("No device registered for requested product ID.")
+}
+
 // Opens a new StreamdeckXL device, and returns a handle
 func rawOpen(reset bool) (*Device, error) {
 	devices := hid.Enumerate(vendorID, 0)
@@ -137,12 +182,12 @@ func (d *Device) SetBrightness(pct int) error {
 }
 
 // GetButtonImageSize returns the size of the images to uploaded to the buttons
-func (d* Device) GetButtonImageSize() image.Point {
+func (d *Device) GetButtonImageSize() image.Point {
 	return d.deviceType.imageSize
 }
 
 // GetNumButtonsOnDevice returns the number of button this device has
-func (d* Device) GetNumButtonsOnDevice() uint {
+func (d *Device) GetNumButtonsOnDevice() uint {
 	return d.deviceType.numberOfButtons
 }
 
