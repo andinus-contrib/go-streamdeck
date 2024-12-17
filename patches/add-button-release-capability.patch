@@ -1,0 +1,75 @@
+From e7cbc98bdc4c218a0671d01ce4adae47a5ed22ba Mon Sep 17 00:00:00 2001
+From: Craig Peterson <192540+captncraig@users.noreply.github.com>
+Date: Mon, 12 Feb 2024 11:19:16 -0500
+Subject: [PATCH] add button release handler capability
+
+---
+ comms.go | 25 ++++++++++++++++++++-----
+ 1 file changed, 20 insertions(+), 5 deletions(-)
+
+diff --git a/comms.go b/comms.go
+index 146fd5f..1cc1ce4 100644
+--- a/comms.go
++++ b/comms.go
+@@ -63,9 +63,10 @@ func RegisterDevicetype(
+
+ // Device is a struct which represents an actual Streamdeck device, and holds its reference to the USB HID device
+ type Device struct {
+-	fd                   *hid.Device
+-	deviceType           deviceType
+-	buttonPressListeners []func(int, *Device, error)
++	fd                     *hid.Device
++	deviceType             deviceType
++	buttonPressListeners   []func(int, *Device, error)
++	buttonReleaseListeners []func(int, *Device, error)
+ }
+
+ // Open a Streamdeck device, the most common entry point
+@@ -137,12 +138,12 @@ func (d *Device) SetBrightness(pct int) error {
+ }
+
+ // GetButtonImageSize returns the size of the images to uploaded to the buttons
+-func (d* Device) GetButtonImageSize() image.Point {
++func (d *Device) GetButtonImageSize() image.Point {
+ 	return d.deviceType.imageSize
+ }
+
+ // GetNumButtonsOnDevice returns the number of button this device has
+-func (d* Device) GetNumButtonsOnDevice() uint {
++func (d *Device) GetNumButtonsOnDevice() uint {
+ 	return d.deviceType.numberOfButtons
+ }
+
+@@ -198,6 +199,9 @@ func (d *Device) buttonPressListener() {
+ 				}
+ 				buttonMask[i] = true
+ 			} else {
++				if buttonMask[i] {
++					d.sendButtonReleaseEvent(int(i), nil)
++				}
+ 				buttonMask[i] = false
+ 			}
+ 		}
+@@ -210,11 +214,22 @@ func (d *Device) sendButtonPressEvent(btnIndex int, err error) {
+ 	}
+ }
+
++func (d *Device) sendButtonReleaseEvent(btnIndex int, err error) {
++	for _, f := range d.buttonReleaseListeners {
++		f(btnIndex, d, err)
++	}
++}
++
+ // ButtonPress registers a callback to be called whenever a button is pressed
+ func (d *Device) ButtonPress(f func(int, *Device, error)) {
+ 	d.buttonPressListeners = append(d.buttonPressListeners, f)
+ }
+
++// ButtonRelease registers a callback to be called whenever a button is released
++func (d *Device) ButtonRelease(f func(int, *Device, error)) {
++	d.buttonReleaseListeners = append(d.buttonReleaseListeners, f)
++}
++
+ // ResetComms will reset the comms protocol to the StreamDeck; useful if things have gotten de-synced, but it will also reboot the StreamDeck
+ func (d *Device) ResetComms() error {
+ 	payload := d.deviceType.resetPacket
